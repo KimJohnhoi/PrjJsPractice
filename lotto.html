@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .ball{
+            display: inline-block;
+            border: 1px solid black;
+            border-radius: 20px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            font-size: 20px;
+            text-align: center; 
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <form id="form">
+        <input name="input" placeholder="숫자 6개를 쉼표로 구분해 입력하세요." />
+        <button>추첨</button>
+    </form>
+    <div id="result">당첨 숫자: </div>
+    <div id="bonus">보너스 숫자: </div>
+    <div id="grade"></div>
+    <script>
+        let $form = document.getElementById('form');
+        let $result = document.getElementById('result');
+        let $bonus = document.getElementById('bonus');
+        let $grade = document.getElementById('grade');
+
+        let drawBall = (number, $parent) => {
+            let $ball = document.createElement('div');
+            $ball.className = 'ball';
+            $ball.textContent = number;
+            $parent.appendChild($ball);
+        }
+
+        $form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            let string = null, myNumbers = null, candidate  = null;
+            let count, shuffle = [];
+
+            string = e.target.input.value;
+            myNumbers = string.split(',').map((v) => parseInt(v.trim())); // 내가 입력한 숫자
+
+            if(!string.trim()) return alert('숫자를 입력하세요');
+            if(myNumbers.length !== 6) return alert('숫자를 6개 입력하세요');
+            if(new Set(myNumbers).size !== 6) return alert('중복된 숫자를 입력했습니다.');
+            if(myNumbers.find((v) => v > 45 || v < 1)) return alert('1~45까지의 숫자만 입력가능합니다');
+
+            candidate = Array(45).fill().map((v, i) => (i+1));
+            while(candidate.length > 0){ // 랜덤으로 45개 섞음
+                let random = Math.floor(Math.random() * candidate.length);
+                let spliceArray = candidate.splice(random, 1);
+                let value = spliceArray[0];
+                shuffle.push(value);
+            }
+            console.log(shuffle);
+            let winBalls = shuffle.splice(0, 6).sort((a,b) => (a-b)); // 랜덤45개의 숫자에서 7개를 뽑음
+            let bonus = shuffle[6];
+            console.log(winBalls, bonus);
+
+            for(let i = 0; i < winBalls.length; i++){ //6개의 당첨 숫자 1초 간격으로 보여주기
+               setTimeout(() => {
+                drawBall(winBalls[i], $result);
+               }, 1000 * (i+1));
+            }
+            setTimeout(() => { //보너스 숫자 마지막에 보여주기
+               drawBall(bonus, $bonus);
+            }, 7000);
+            
+            myNumbers.forEach((x) => {   // 내가 입력한 숫자가 당첨숫자에 포함되는지 확인
+                if(winBalls.includes(x)) count++; }
+            )
+
+            setTimeout(() => { // 등수보여주기
+                if(count === 6) $grade.textContent = '와우! 1등입니다'; 
+                else if(count === 5){
+                    if(winBalls.includes(bonus)) $grade.textContent = '보너스 숫자도 맞추셨군요! 2등입니다';
+                    else $grade.textContent = '3등입니다';
+                }
+                else if(count === 4) $grade.textContent = '4등입니다';
+                else if(count === 3) $grade.textContent = '5등입니다';
+                else $grade.textContent = '로또 참 어렵죠잉?';
+            }, 8000);
+            
+        });
+    </script>
+</body>
+</html>

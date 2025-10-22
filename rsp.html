@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #computer{
+            width: 165px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="computer"></div>
+    <div>
+        <button id="scissors" class="btn">가위</button>
+        <button id="rock" class="btn">바위</button>
+        <button id="paper" class="btn">보</button>
+    </div>
+    <div id="score">0</div>
+    <script>
+        let $computer = document.getElementById('computer');
+        let $scissors = document.getElementById('scissors');
+        let $rock = document.getElementById('rock');
+        let $paper = document.getElementById('paper');
+        let $score = document.getElementById('score');
+        let img_url = './rsp.png';
+        let computerChoice = 'scissors', scoreMe = 0, scoreCom = 0, message = null;
+        let clickable = true, intervalId = null;
+        let rspX = {
+            scissors : '0',
+            rock : '-220px',
+            paper : '-440px'
+        };
+        let scoreTable = {
+            scissors : 1,
+            rock : 0,
+            paper : -1
+        };
+
+        let changeComputerHand = () => {
+            if(computerChoice === 'rock'){
+                computerChoice = 'scissors';
+            } else if(computerChoice === 'paper'){
+                computerChoice = 'rock';
+            } else if(computerChoice === 'scissors'){
+                computerChoice = 'paper';
+            }
+            $computer.style.background = `url(${img_url}) ${rspX[computerChoice]} 0`;
+            $computer.style.backgroundSize = 'auto 200px';
+        };
+        let clickButton = e => {
+            if(clickable){
+                clearInterval(intervalId);
+                clickable = false;
+                
+                let myChoice = e.target.textContent === '바위'? 'rock'
+                              :e.target.textContent === '보'? 'paper' : 'scissors';
+                let myScore = scoreTable[myChoice];
+                let computerScore = scoreTable[computerChoice];
+                let diff = myScore - computerScore;
+
+                if([2, -1].includes(diff)){
+                    scoreMe += 1;
+                    message = '승리';
+                } else if([1, -2].includes(diff)){
+                    scoreCom += 1;
+                    message = '패';
+                } else message = '무승부';
+
+                if(scoreMe === 3){
+                    $score.textContent = `${message} - ${scoreMe} vs ${scoreCom} `;
+                } else if(scoreCom === 3){
+                    $score.textContent = `${message} - ${scoreMe} vs ${scoreCom} `;
+                } else {
+                    $score.textContent = `${message}`;
+
+                    setTimeout(() => {
+                        clickable = true;
+                        intervalId = setInterval(changeComputerHand, 200);
+                    }, 1000);
+                }
+            }
+        };
+        
+        intervalId = setInterval(changeComputerHand, 200);
+        $rock.addEventListener('click', clickButton);
+        $paper.addEventListener('click', clickButton);
+        $scissors.addEventListener('click', clickButton);
+    </script>
+</body>
+</html>
